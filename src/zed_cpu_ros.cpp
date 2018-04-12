@@ -150,6 +150,12 @@ public:
 
 		sensor_msgs::CameraInfo left_info, right_info;
 
+        switch (resolution_) {
+            case 0: width_ = 2208; height_ = 1242; break;
+            case 1: width_ = 1720; height_ = 1080; break;
+            case 2: width_ = 1280; height_ = 720; break;
+            case 3: width_ = 672; height_ = 376; break;
+        }
 
 		ROS_INFO("Try load camera calibration files");
 		if (load_zed_config_) {
