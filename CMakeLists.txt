@@ -40,6 +40,9 @@ catkin_package(
 add_executable(zed_cpu_ros src/zed_cpu_ros.cpp)
 target_link_libraries(zed_cpu_ros ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBS})
 
+add_executable(repeater src/repeater.cpp)
+target_link_libraries(repeater ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBS})
+
 # install(TARGETS 
 #        ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #        LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
