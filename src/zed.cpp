@@ -45,11 +45,4 @@ bool ZEDCamera::getImages(cv::Mat &left_image, cv::Mat &right_image) {
     }
 }
 
-bool ZEDCamera::getImage(cv::Mat &raw) {
-    if (camera_.grab()) {
-        camera_.retrieve(raw);
-        return true;
-    } else {
-        return false;
-    }
-}
+

@@ -12,7 +12,7 @@ public:
     void setResolution(int type);
     void setFrameRate(double frame_rate);
     bool getImages(cv::Mat& left_image, cv::Mat& right_image);
-    bool getImage(cv::Mat& raw);
+    inline bool getImage(cv::Mat& raw) { return camera_.read(raw); }
     inline bool ok() { return camera_.isOpened(); }
     static const std::vector<std::pair<int, int>> resolutions;
 private:
