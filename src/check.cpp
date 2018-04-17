@@ -10,8 +10,9 @@ void testFps(int fps, image_transport::Publisher &pub, ZEDCamera &cam, bool noSt
     ros::Rate rate(fps);
     cv::Mat raw;
     int dropped = 0, recv = 0;
+
     for (ros::Time end = ros::Time::now() + ros::Duration(1.0); ros::Time::now() < end || (noStop && ros::ok()); ) {
-        if(!cam.getImage(raw)) {
+        if(!cam.getImage(raw) || raw.empty()) {
             ++dropped;
             continue;
         }
@@ -19,6 +20,13 @@ void testFps(int fps, image_transport::Publisher &pub, ZEDCamera &cam, bool noSt
             pub.publish(cv_bridge::CvImage(std_msgs::Header(), "bgr8", raw).toImageMsg());
         ++recv;
         rate.sleep();
+        ros::Time now = ros::Time::now();
+        if (now > end) {
+            ROS_INFO("Rate received %d, dropped %d", recv, dropped);
+            dropped = 0;
+            recv = 0;
+            end = now + ros::Duration(1.0);
+        }
     }
     ROS_INFO("Rate received %d, dropped %d", recv, dropped);
 }
