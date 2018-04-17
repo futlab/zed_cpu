@@ -1,6 +1,6 @@
 <launch>
 
-    <include file="$(find zed_cpu_ros)/launch/zed_cpu_ros.launch"/>
+    <include file="$(find zed_cpu)/launch/zed_cpu.launch"/>
 
     <arg name="size" default="8x6"/>
     <arg name="square" default="0.108"/>
