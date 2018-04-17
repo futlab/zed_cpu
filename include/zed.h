@@ -11,6 +11,7 @@ public:
     ZEDCamera(int deviceId, int resolution = 3, double frame_rate = 10.0);
     void setResolution(int type);
     void setFrameRate(double frame_rate);
+    inline double getFrameRate() { return frame_rate_; }
     bool getImages(cv::Mat& left_image, cv::Mat& right_image);
     inline bool getImage(cv::Mat& raw) { return camera_.read(raw); }
     inline bool ok() { return camera_.isOpened(); }
