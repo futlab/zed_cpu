@@ -103,6 +103,15 @@ public:
 		}
 	}
 
+    bool getImage(cv::Mat& raw) {
+        if (camera_->grab()) {
+            camera_->retrieve(raw);
+            cv::waitKey(1);
+            return true;
+        } else {
+            return false;
+        }
+    }
 private:
 	cv::VideoCapture* camera_;
 	int width_;
@@ -135,6 +144,7 @@ public:
 		private_nh.param("show_image", show_image_, false);
 		private_nh.param("load_zed_config", load_zed_config_, true);
 		private_nh.param("device_id", device_id_, 0);
+        private_nh.param("pub_throttle", pubThrottleHz_, 0.0);
 
 		ROS_INFO("Try to initialize the camera");
 		StereoCamera zed(device_id_, resolution_, frame_rate_);
@@ -144,6 +154,9 @@ public:
 		image_transport::ImageTransport it(nh);
 		image_transport::Publisher left_image_pub = it.advertise("left/image_raw", 1);
 		image_transport::Publisher right_image_pub = it.advertise("right/image_raw", 1);
+        image_transport::Publisher throttle_pub;
+        if (pubThrottleHz_ > 0)
+            throttle_pub = it.advertise("image_throttle", 1);
 
 		ros::Publisher left_cam_info_pub = nh.advertise<sensor_msgs::CameraInfo>("left/camera_info", 1);
 		ros::Publisher right_cam_info_pub = nh.advertise<sensor_msgs::CameraInfo>("right/camera_info", 1);
@@ -190,26 +203,31 @@ public:
 
 		ROS_INFO("Got camera calibration files");
 		// loop to publish images;
-		cv::Mat left_image, right_image;
+        cv::Mat image;
 		ros::Rate r(frame_rate_);
-
-		while (nh.ok()) {
+        ros::Duration throttlePeriod(pubThrottleHz_ > 0 ? 1.0 / pubThrottleHz_ : 0.0);
+        ros::Time nextThrottle = ros::Time::now();;
+        cv::Rect left_rect(0, 0, width_ / 2, height_), right_rect(width_ / 2, 0, width_ / 2, height_);
+        while (nh.ok()) {
 			ros::Time now = ros::Time::now();
-			if (!zed.getImages(left_image, right_image)) {
+            if (!zed.getImage(image)) {
 				ROS_INFO_ONCE("Can't find camera");
 			} else {
 				ROS_INFO_ONCE("Success, found camera");
 			}
 			if (show_image_) {
-				cv::imshow("left", left_image);
-				cv::imshow("right", right_image);
+                cv::imshow("left", image(left_rect));
+                cv::imshow("right", image(right_rect));
 			}
-
+            if(!throttlePeriod.isZero() && throttle_pub.getNumSubscribers() > 0 && now > nextThrottle) {
+                publishImage(image, throttle_pub, "frame", now);
+                nextThrottle = now + throttlePeriod;
+            }
 			if (left_image_pub.getNumSubscribers() > 0) {
-				publishImage(left_image, left_image_pub, "left_frame", now);
+                publishImage(image(left_rect), left_image_pub, "left_frame", now);
 			}
 			if (right_image_pub.getNumSubscribers() > 0) {
-				publishImage(right_image, right_image_pub, "right_frame", now);
+                publishImage(image(right_rect), right_image_pub, "right_frame", now);
 			}
 			if (left_cam_info_pub.getNumSubscribers() > 0) {
 				publishCamInfo(left_cam_info_pub, left_info, now);
@@ -400,7 +418,8 @@ private:
 	double frame_rate_;
 	bool show_image_, load_zed_config_;
 	double width_, height_;
-	std::string left_frame_id_, right_frame_id_;
+    double pubThrottleHz_;
+    std::string left_frame_id_, right_frame_id_;
 	std::string config_file_location_;
 };
 
