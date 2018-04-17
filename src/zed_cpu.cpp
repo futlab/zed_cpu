@@ -13,112 +13,7 @@
 #include <boost/property_tree/ini_parser.hpp>
 #include <camera_info_manager/camera_info_manager.h>
 
-#define WIDTH_ID 3
-#define HEIGHT_ID 4
-#define FPS_ID 5
-
-namespace arti {
-
-
-class StereoCamera
-{
-
-public:
-	/**
-	 * @brief      { stereo camera driver }
-	 *
-	 * @param[in]  resolution  The resolution
-	 * @param[in]  frame_rate  The frame rate
-	 */
-	 StereoCamera(int device_id, int resolution, double frame_rate):frame_rate_(30.0) {
-
-		camera_ = new cv::VideoCapture(device_id);
-		cv::Mat raw;
-		cv::Mat left_image;
-		cv::Mat right_image;
-		setResolution(resolution);
-		// // this function doesn't work very well in current Opencv 2.4, so, just use ROS to control frame rate.
-		// setFrameRate(frame_rate);
-
-		std::cout << "Stereo Camera Set Resolution: " << camera_->get(WIDTH_ID) << "x" << camera_->get(HEIGHT_ID) << std::endl;
-		// std::cout << "Stereo Camera Set Frame Rate: " << camera_->get(FPS_ID) << std::endl;
-	}
-
-	~StereoCamera() {
-		// std::cout << "Destroy the pointer" << std::endl;
-		delete camera_;
-	}
-
-	/**
-	 * @brief      Sets the resolution.
-	 *
-	 * @param[in]  type  The type
-	 */
-	void setResolution(int type) {
-
-		if (type == 0) { width_ = 4416; height_ = 1242;} // 2K
-		if (type == 1) { width_ = 3840; height_ = 1080;} // FHD
-		if (type == 2) { width_ = 2560; height_ = 720;}  // HD
-		if (type == 3) { width_ = 1344; height_ = 376;}  // VGA
-
-		camera_->set(WIDTH_ID, width_);
-		camera_->set(HEIGHT_ID, height_);
-
-		// make sure that the number set are right from the hardware
-		width_ = camera_->get(WIDTH_ID);
-		height_ = camera_->get(HEIGHT_ID);
-
-	}
-
-	/**
-	 * @brief      Sets the frame rate.
-	 *
-	 * @param[in]  frame_rate  The frame rate
-	 */
-	void setFrameRate(double frame_rate) {
-		camera_->set(FPS_ID, frame_rate);
-		frame_rate_ = camera_->get(FPS_ID);
-	}
-
-	/**
-	 * @brief      Gets the images.
-	 *
-	 * @param      left_image   The left image
-	 * @param      right_image  The right image
-	 *
-	 * @return     The images.
-	 */
-	bool getImages(cv::Mat& left_image, cv::Mat& right_image) {
-		cv::Mat raw;
-		if (camera_->grab()) {
-			camera_->retrieve(raw);
-			cv::Rect left_rect(0, 0, width_ / 2, height_);
-			cv::Rect right_rect(width_ / 2, 0, width_ / 2, height_);
-			left_image = raw(left_rect);
-			right_image = raw(right_rect);
-			cv::waitKey(10);
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-    bool getImage(cv::Mat& raw) {
-        if (camera_->grab()) {
-            camera_->retrieve(raw);
-            cv::waitKey(1);
-            return true;
-        } else {
-            return false;
-        }
-    }
-private:
-	cv::VideoCapture* camera_;
-	int width_;
-	int height_;
-	double frame_rate_;
-	bool cv_three_;
-};
+#include "zed.h"
 
 /**
  * @brief       the camera ros warpper class
@@ -147,7 +42,7 @@ public:
         private_nh.param("pub_throttle", pubThrottleHz_, 0.0);
 
 		ROS_INFO("Try to initialize the camera");
-		StereoCamera zed(device_id_, resolution_, frame_rate_);
+        ZEDCamera zed(device_id_, resolution_, frame_rate_);
 		ROS_INFO("Initialized the camera");
 
 		// setup publisher stuff
@@ -423,13 +318,10 @@ private:
 	std::string config_file_location_;
 };
 
-}
-
-
 int main(int argc, char **argv) {
     try {
         ros::init(argc, argv, "zed_camera");
-        arti::ZedCameraROS zed_ros;
+        ZedCameraROS zed_ros;
         return EXIT_SUCCESS;
     }
     catch(std::runtime_error& e) {

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(zed_cpu_ros)
+project(zed_cpu)
 
 find_package(catkin REQUIRED
         COMPONENTS
@@ -10,7 +10,9 @@ find_package(catkin REQUIRED
             image_transport
             camera_info_manager
         )
-# set(CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS}")
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # find_package(Eigen3 REQUIRED)
 find_package(Boost REQUIRED)
@@ -33,12 +35,15 @@ catkin_package(
     CATKIN_DEPENDS
 )
 
-# add_library(zed_cpu_ros src/zed_cpu_ros.cpp)
-# target_link_libraries(zed_cpu_ros ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${Boost_LIBRARIES})
-# add_dependencies(zed_cpu_ros arti_msgs_gencpp)
+add_executable(zed_cpu
+    src/zed.cpp         include/zed.h
+    src/zed_cpu.cpp
+)
 
-add_executable(zed_cpu_ros src/zed_cpu_ros.cpp)
-target_link_libraries(zed_cpu_ros ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBS})
+target_link_libraries(zed_cpu ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBS})
+
+add_executable(check src/check.cpp src/zed.cpp)
+target_link_libraries(check ${catkin_LIBRARIES} ${OpenCV_LIBS})
 
 add_executable(repeater src/repeater.cpp)
 target_link_libraries(repeater ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBS})

@@ -1,5 +1,5 @@
 <package>
-    <name>zed_cpu_ros</name>
+    <name>zed_cpu</name>
     <version>0.0.1</version>
     <description>
       A simple zed camera driver which only use CPU and only publish left and right raw images.
@@ -30,5 +30,3 @@
     </export>
 
 </package>
-
-
