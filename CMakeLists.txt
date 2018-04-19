@@ -37,15 +37,20 @@ catkin_package(
 
 add_executable(zed_cpu
     src/zed.cpp         include/zed.h
-    src/zed_cpu.cpp
+    src/zed_ros.cpp     include/zed_ros.h
+    src/zed_node.cpp
 )
 
 target_link_libraries(zed_cpu ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBS})
 
-add_executable(check src/check.cpp src/zed.cpp)
+add_executable(check src/check_node.cpp src/zed.cpp)
 target_link_libraries(check ${catkin_LIBRARIES} ${OpenCV_LIBS})
 
-add_executable(repeater src/repeater.cpp)
+add_executable(repeater
+    src/zed.cpp         include/zed.h
+    src/zed_ros.cpp     include/zed_ros.h
+    src/repeater_node.cpp
+)
 target_link_libraries(repeater ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBS})
 
 # install(TARGETS 

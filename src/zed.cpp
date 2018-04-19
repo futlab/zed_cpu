@@ -7,9 +7,6 @@ const vector<pair<int, int>> ZEDCamera::resolutions{{4416, 1242}, {3840, 1080}, 
 ZEDCamera::ZEDCamera(int deviceId, int resolution, double frame_rate): camera_(deviceId), frame_rate_(frame_rate) {
     setResolution(resolution);
     setFrameRate(frame_rate);
-
-    //std::cout << "Stereo Camera Set Resolution: " << camera_->get(WIDTH_ID) << "x" << camera_->get(HEIGHT_ID) << std::endl;
-    // std::cout << "Stereo Camera Set Frame Rate: " << camera_->get(FPS_ID) << std::endl;
 }
 
 void ZEDCamera::setResolution(int type) {
@@ -21,7 +18,6 @@ void ZEDCamera::setResolution(int type) {
     camera_.set(cv::CAP_PROP_FRAME_WIDTH, width_);
     camera_.set(cv::CAP_PROP_FRAME_HEIGHT, height_);
 
-    // make sure that the number set are right from the hardware
     width_ = camera_.get(cv::CAP_PROP_FRAME_WIDTH);
     height_ = camera_.get(cv::CAP_PROP_FRAME_HEIGHT);
 }

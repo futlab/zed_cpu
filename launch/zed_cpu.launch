@@ -5,12 +5,12 @@
 
 <node pkg="zed_cpu" type="zed_cpu" name="zed_cpu_node" output="screen" ns="$(arg camera_namespace)" required="true">
 	<param name="resolution" value="3"/>
-	<param name="frame_rate" value="30"/>
+	<param name="frame_rate" value="15"/>
 	<param name="config_file_location" value="$(arg config_file_location)"/>
 	<param name="show_image" value="false"/>
 	<param name="left_frame_id" value="left_frame"/>
 	<param name="right_frame_id" value="right_frame"/>
-	<param name="load_zed_config" value="true"/>
+	<param name="load_zed_config" value="false"/>
 	<param name="device_id" value="$(arg device_id)"/>
 </node>
 
